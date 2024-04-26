@@ -1,0 +1,27 @@
+<nav class="main-nav--bg">
+  <div class="container main-nav">
+    <div class="main-nav-start">
+    </div>
+
+
+    <div class="main-nav-end">
+      {% if not c.selected_account %}
+      <div>
+        <a class="btn btn-info create-account">Создать счет</a>
+      </div>
+      {% endif %}
+
+
+      {% if c.selected_account %}
+        <div class="search-wrapper">
+          <i data-feather="search" aria-hidden="true"></i>
+          <input type="text" placeholder="Поиск инструментов" required>
+          <a class="btn btn-success">Поиск</a>
+        </div>
+        <div>
+          <a class="btn btn-danger">Закрыть счет</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</nav>

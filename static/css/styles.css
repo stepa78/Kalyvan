@@ -1,0 +1,23 @@
+#login-form .form-input,
+#register-form .field-input {
+    margin-bottom:15px;
+}
+
+#login-form,
+#register-form {
+    padding: 30px;
+}
+
+.wallet {
+    background-image: url(../elegant/img/svg/Bulk/wallet.svg);
+    width: 24px;
+    height: 24px;
+}
+
+.main-nav {
+    justify-content: unset;
+}
+
+.stock-chart {
+    min-height: 300px;
+}

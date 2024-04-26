@@ -1,0 +1,60 @@
+
+<aside class="sidebar">
+    <div class="sidebar-start">
+        <div class="sidebar-head">
+            <a href="##" class="sidebar-user">
+                <span class="sidebar-user-img">
+                    <picture><source srcset="./img/avatar/avatar-illustrated-01.webp" type="image/webp"><img src="./img/avatar/avatar-illustrated-01.png" alt="User name"></picture>
+                </span>
+                <div class="sidebar-user-info">
+                    <span class="sidebar-user__title">{{c.user.username}}</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="sidebar-body">
+      <ul class="sidebar-body-menu">
+
+          <li>
+              <a class="show-cat-btn" href="##">
+                  <span class="icon wallet" aria-hidden="true"></span>Мои счета
+                  <span class="category__btn transparent-btn" title="Open list">
+                      <span class="sr-only">Open list</span>
+                      <span class="icon arrow-down" aria-hidden="true"></span>
+                  </span>
+              </a>
+              <ul class="cat-sub-menu {% if c.selected_account %}visible{% endif %}">
+                {% for account in c.accounts %}
+                  <li>
+                    <a class="dropdown-item" href="{{ url_for('dashboard', account_code=account.code) }}">{{ account.code }}</a>
+                  </li>
+                {% endfor %}
+              </ul>
+          </li>
+
+          <li>
+            <a class="nav-link" aria-disabled="true">
+                <span class="icon document" aria-hidden="true"></span>История операций
+            </a>
+          </li>
+
+          <li>
+                <a href="{{url_for('logout')}}">
+                    <span class="icon setting" aria-hidden="true"></span>Настройки
+                </a>
+          </li>
+
+          <li>
+              <span class="nav-item">
+                <a href="{{url_for('logout')}}">Выйти</a>
+              </span>
+          </li>
+
+      </ul>
+    </div>
+    </div>
+
+    <div class="sidebar-footer">
+    </div>
+
+</aside>

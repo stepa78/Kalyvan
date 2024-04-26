@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<main class="page-center">
+    <h1 class="sign-up__title">Создайте аккаунт и станьте уже богатым!</h1>
+    <article class="sign-up">
+
+        <form id="register-form" class="sign-up-form form" method="POST" action="">
+            {{ form.hidden_tag() }}
+
+            <div class="field-input">
+                {{ form.username(class_="form-control form-input") }}
+                {% with errors=form.username.errors %}
+                {% include 'include/form_errors.html' %}
+                {% endwith %}
+            </div>
+
+            <div class="field-input">
+                {{ form.password1(class_="form-control form-input") }}
+            </div>
+
+            <div class="field-input">
+                {{ form.password2(class_="form-control form-input") }}
+                {% with errors=form.password2.errors %}
+                {% include 'include/form_errors.html' %}
+                {% endwith %}
+            </div>
+
+            {{ form.submit(class_="form-btn primary-default-btn transparent-btn") }}
+        </form>
+
+        <div style="margin-top:15px;">
+            <a href="{{url_for('login')}}">У вас уже есть аккаунт? Войти!</a>
+        </div>
+    </article>
+</main>
+{% endblock %}

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <meta charset="UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Home</title>
+
+      <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}"/>
+      <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-icons.min.css') }}"/>
+
+      <link rel="stylesheet" href="{{ url_for('static', filename='elegant/css/style.min.css') }}"/>
+      <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"/>
+
+  </head>
+  <body>
+
+  <!-- <div class="container"> //-->
+  <div class="layer"></div>
+
+  {% block content %}
+  {% endblock %}
+
+  <script src="{{ url_for('static', filename='js/jquery-3.7.1.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/jquery.canvasjs.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+
+  <script src="{{ url_for('static', filename='elegant/plugins/chart.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='elegant/plugins/feather.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='elegant/js/script.js') }}"></script>
+
+  <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+  </body>
+</html>

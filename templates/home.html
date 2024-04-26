@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="d-flex
+         align-items-center
+         justify-content-center
+         min-vh-100">
+        <div>
+            <h1>iБогатый 78000</h1>
+            <ul style="list-style-type:none;">
+                <li><a href="{{url_for('login')}}">Войти</a></li>
+                <li><a href="{{url_for('register')}}">Зарегистрироваться</a></li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
