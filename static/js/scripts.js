@@ -1,7 +1,25 @@
 $(document).ready(()=>{
 
     $('.create-account').click(function(){
-        $.post('/account', success=(response)=>{console.log(response)});
+        $.post('/account', success=(response)=>{
+            $('main.main').prepend(`
+                <div class="alert alert-primary" role="alert">
+                  <a href="${response.url}">Для вас создан счет ${response.account.code}</a>
+                </div>
+            `)
+        });
+    })
+
+    $('.delete-account').click(function(){
+        const account_id = $(this).data('account_id');
+        $.ajax({
+            url: `/account/${account_id}`,
+            type: 'DELETE',
+            success: function(result) {
+                console.log(result);
+                window.location = '/dashboard';
+            }
+        });
     })
 
     $('.user-avatar-active').click(()=>{

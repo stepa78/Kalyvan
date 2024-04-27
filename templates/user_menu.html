@@ -4,7 +4,7 @@
         <div class="sidebar-head">
             <a href="##" class="sidebar-user">
                 {% if user.avatar %}
-                    <img class="user-avatar-menu rounded-circle" src="{{user.avatar}}" alt="user image">
+                    <img class="user-avatar-menu rounded-circle" src="/{{user.avatar}}" alt="user image">
                 {% else %}
                     <span class="sidebar-user-img">
                         <img src="/static/elegant/img/avatar/avatar-illustrated-01.png" alt="user image">
@@ -17,38 +17,38 @@
         </div>
 
         <div class="sidebar-body">
-      <ul class="sidebar-body-menu">
+            <ul class="sidebar-body-menu">
 
-            <li>
-                <a class="show-cat-btn1" href="{{ url_for('dashboard') }}">
-                    <span class="icon wallet" aria-hidden="true"></span>Мои счета
-                    <span class="category__btn transparent-btn" title="Open list">
-                       <span class="sr-only">Open list</span>
-                       <span class="icon arrow-down" aria-hidden="true"></span>
+                <li>
+                    <a class="show-cat-btn1" href="{{ url_for('dashboard') }}">
+                        <span class="icon wallet" aria-hidden="true"></span>Мои счета
+                        <span class="category__btn transparent-btn" title="Open list">
+                           <span class="sr-only">Open list</span>
+                           <span class="icon arrow-down" aria-hidden="true"></span>
+                        </span>
+                    </a>
+                  <ul class="cat-sub-menu visible">
+                    {% for account in accounts %}
+                      <li>
+                        <a class="dropdown-item" href="{{ url_for('dashboard', account_code=account.code) }}">{{ account.code }}</a>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </li>
+                <li>
+                    <a href="{{url_for('settings')}}">
+                        <span class="icon setting" aria-hidden="true"></span>Настройки
+                    </a>
+                </li>
+
+                <li>
+                    <span class="nav-item">
+                        <a href="{{url_for('logout')}}">Выйти</a>
                     </span>
-                </a>
-              <ul class="cat-sub-menu visible">
-                {% for account in accounts %}
-                  <li>
-                    <a class="dropdown-item" href="{{ url_for('dashboard', account_code=account.code) }}">{{ account.code }}</a>
-                  </li>
-                {% endfor %}
-              </ul>
-            </li>
-            <li>
-                <a href="{{url_for('settings')}}">
-                    <span class="icon setting" aria-hidden="true"></span>Настройки
-                </a>
-            </li>
+                </li>
 
-          <li>
-              <span class="nav-item">
-                <a href="{{url_for('logout')}}">Выйти</a>
-              </span>
-          </li>
-
-      </ul>
-    </div>
+            </ul>
+        </div>
     </div>
 
     <div class="sidebar-footer">

@@ -86,12 +86,17 @@ def dashboard(account_code=None):
 @app.route('/account/<account_id>', methods=['GET', 'DELETE'])
 @login_required
 def account(account_id=0):
+    try:
+        account_id = int(account_id)
+    except ValueError:
+        pass
+
     if request.method == 'POST':
         # создаем новый счет (запись в таблице Account)
         user_account = Account(user_id=current_user.id, code=UNIQUE_STRING(6))
         db.session.add(user_account)
         db.session.commit()
-        return jsonify(user_account.as_dict())
+        return jsonify(account=user_account.as_dict(), url=f'/dashboard/{user_account.code}')
 
     elif request.method == 'GET':
         if account_id > 0:
@@ -107,7 +112,13 @@ def account(account_id=0):
 
     elif request.method == 'DELETE':
         #удаляем account с id == account_id
-        pass
+        if account_id > 0:
+            # возвращаем account с id == account_id
+            Account.query.filter(Account.user_id==current_user.id, Account.id==account_id).delete()
+            db.session.commit()
+            return jsonify(ok=True)
+        else:
+            return jsonify(ok=False)
 
 
 @app.route('/logout', methods=['GET', 'POST'])
