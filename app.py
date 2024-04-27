@@ -1,7 +1,10 @@
+import os
 import threading
 import datetime
-import decimal
-import random
+
+from werkzeug.utils import secure_filename
+
+from slugify import slugify
 
 from flask import Flask, render_template, redirect, url_for, request, jsonify, abort
 
@@ -11,12 +14,9 @@ from flask_bcrypt import Bcrypt
 from forms import LoginForm, RegisterForm
 from models import db, User, Account, AccountStock, Stock, Tick, StockTick
 
-from sqlalchemy import func, and_
+from sqlalchemy import func, and_, select
 from sqlalchemy.orm import aliased
-
-
-BURSE_START_DATE = datetime.datetime(year=2024, month=1, day=1)
-BURSE_TICK_STEP = 30
+from ticker import run_ticker, BURSE_START_DATE
 
 
 def UNIQUE_STRING(length=6):
@@ -27,6 +27,8 @@ def UNIQUE_STRING(length=6):
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
+app.config['UPLOAD_FOLDER'] = 'static/media/upload'
+
 bcrypt = Bcrypt(app)
 db.init_app(app)
 
@@ -66,18 +68,18 @@ def dashboard(account_code=None):
     selected_account = None
     if account_code:
         selected_account = Account.query.filter(
-            Account.user_id==current_user.id,
-            Account.code==account_code
+            Account.user_id == current_user.id,
+            Account.code == account_code
         ).first()
         if not selected_account:
             abort(404)
 
-    return render_template('dashboard.html', c={
-        'user': current_user,
-        'accounts': [a.as_dict() for a in Account.query.filter(Account.user_id==current_user.id)],
-        'selected_account': selected_account,
-        'all_stocks': Stock.query.all()
-    })
+    return render_template('dashboard.html',
+        user=current_user,
+        accounts=current_user.get_accounts(),
+        selected_account=selected_account,
+        all_stocks=Stock.query.all()
+    )
 
 
 @app.route('/account', methods=['POST', 'GET'])
@@ -128,56 +130,93 @@ def register():
     return render_template('register.html', form=form)
 
 
+@login_required
+@app.route('/settings', methods=['GET', 'POST'])
+def settings():
+    if request.method == 'POST':
+        if 'user_avatar' in request.files:
+            file = request.files['user_avatar']
+            if file and file.filename != '':
+
+                name, ext = os.path.splitext(file.filename)
+                filename = secure_filename(f'{slugify(name)}{ext}')
+                final_filename = os.path.join(*os.path.split(app.config['UPLOAD_FOLDER']), filename)
+                file.save(final_filename)
+
+                current_user.avatar = final_filename
+                db.session.commit()
+
+    return render_template('user_settings.html',
+                           user=current_user,
+                           accounts=current_user.get_accounts())
+
+
 @app.route('/api/prices')
 def stock_prices():
     stock_id = request.args.get('stock_id')
-    tick = request.args.get('timestamp')
+
+    try:
+        tick = int(request.args.get('timestamp'))
+    except ValueError:
+        tick = None
+
     if not tick:
-        tick = 0
+        tick = (datetime.datetime.now() + datetime.timedelta(minutes=-120)).timestamp()
 
+    res = []
     if stock_id:
-        #pricesOpen = StockTick.query.filter(StockTick.stock_id == stock_id).subquery()
-        #pricesClose = StockTick.query.filter(StockTick.stock_id == stock_id).subquery()
-
         pricesOpen = aliased(StockTick)
         pricesClose = aliased(StockTick)
 
         time_frame = 300
         group_by_time_frame = time_frame * func.floor(StockTick.tick / time_frame)
 
-        agg_prices = db.session.query(
-            group_by_time_frame,
-            StockTick.stock_id,
-            func.max(StockTick.tick).label("open_tick"),
-            func.min(StockTick.tick).label("close_tick"),
-            func.max(StockTick.price).label("hi"),
-            func.min(StockTick.price).label("lo"),
-        ).filter(
-            StockTick.tick > tick, StockTick.stock_id == stock_id
-        ).group_by(
-            StockTick.stock_id,
-            group_by_time_frame
-        ).order_by(group_by_time_frame).subquery()
+        agg_prices = (
+            select(
+                group_by_time_frame.label('tick'),
+                StockTick.stock_id,
+                func.max(StockTick.tick).label("open_tick"),
+                func.min(StockTick.tick).label("close_tick"),
+                func.max(StockTick.price).label("hi"),
+                func.min(StockTick.price).label("lo"),
+            ).
+            filter(
+                StockTick.tick > tick + time_frame, StockTick.stock_id == stock_id
+            ).group_by(
+                StockTick.stock_id,
+                group_by_time_frame
+            ).order_by(group_by_time_frame).subquery()
+        )
 
-        a = agg_prices.join(
-            pricesOpen,
-            and_(
-                pricesOpen.stock_id == agg_prices.c.stock_id,
-                pricesOpen.tick == agg_prices.c.open_tick
-            )
-        ).join(
-            pricesClose,
-            and_(
-                pricesClose.stock_id == agg_prices.c.stock_id,
-                pricesClose.tick == agg_prices.c.close_tick
+        a = (
+            select(
+                agg_prices.c.tick,
+                pricesOpen.price,
+                pricesClose.price,
+                agg_prices.c.hi,
+                agg_prices.c.lo,
+            ).join(
+                pricesOpen,
+                and_(
+                    pricesOpen.stock_id == agg_prices.c.stock_id,
+                    pricesOpen.tick == agg_prices.c.open_tick
+                )
+            ).join(
+                pricesClose,
+                and_(
+                    pricesClose.stock_id == agg_prices.c.stock_id,
+                    pricesClose.tick == agg_prices.c.close_tick
+                )
             )
         )
-        print(a)
 
-        res = db.session.query(a).all()
+        for r in db.session.execute(a):
+            res.append({
+                'x': r[0],
+                'y': [float(r[1]), float(r[2]), float(r[3]), float(r[4])]}
+            )
 
-
-    return
+    return res
 
 
 def create_stock():
@@ -207,8 +246,17 @@ def create_stock():
     db.session.commit()
 
 
+def start_ticker():
+    threading.Timer(30, start_ticker).start()
+    run_ticker(app)
+
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-        # create_stock()
-    app.run(debug=True)
+        create_stock()
+
+    #start_ticker()
+
+    #run_ticker(app)
+    app.run()

@@ -11,18 +11,24 @@ from flask_login import UserMixin
 
 STOCK_PRICE = lambda : DECIMAL(precision=10, scale=2)
 
+
 class Base(DeclarativeBase):
   pass
+
 
 db = SQLAlchemy(model_class=Base)
 
 
 class User(UserMixin, db.Model):
-    __tablename__ = 'user'
+    #__tablename__ = 'user'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     username: Mapped[str] = mapped_column(String(20), unique=True)
     password: Mapped[str] = mapped_column(String(80))
+    avatar: Mapped[str] = mapped_column(String(1000), nullable=True)
+
+    def get_accounts(self):
+        return [a for a in Account.query.filter(Account.user_id == self.id)]
 
 
 class Account(db.Model):

@@ -3,6 +3,10 @@
     margin-bottom:15px;
 }
 
+#text {
+    margin-bottom:15px;
+}
+
 #login-form,
 #register-form {
     padding: 30px;
@@ -19,5 +23,22 @@
 }
 
 .stock-chart {
-    min-height: 300px;
+    min-height: 200px;
+}
+
+.user-avatar-active {
+    width: 50px;
+    height: 50px;
+    top: -5px;
+    position: relative;
+}
+
+.user-avatar-menu {
+    width: 30px;
+    height: 30px;
+}
+
+
+.user-settings {
+    padding:30px;
 }

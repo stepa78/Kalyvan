@@ -8,30 +8,33 @@
 
     <div class="main-wrapper">
 
-    {% include 'user_toolbar.html' %}
+        {% block dashboard_content %}
 
-        <main class="main">
-            <div class="container">
-                {% if not c.accounts and not c.selected_account %}
-                <div class="alert alert-primary" role="alert">
-                    У Вас нет ни одного счета. <a class="create-account">Создайте</a> счет, чтобы стать богатым
+            {% include 'user_toolbar.html' %}
+
+            <main class="main">
+                <div class="container">
+                    {% if not accounts and not selected_account %}
+                    <div class="alert alert-primary" role="alert">
+                        У Вас нет ни одного счета. <a class="create-account">Создайте</a> счет, чтобы стать богатым
+                    </div>
+                    {% elif selected_account %}
+                        <div class="container">
+                            {{ selected_account.code }}
+                        </div>
+                    {% else %}
+                        <div style="display:grid;grid-template-columns: 30% 30% 30%;grid-gap: 20px;">
+                            {% for stock in all_stocks %}
+                                <div class="stock-chart"
+                                     data-stock_id="{{stock.id}}"
+                                     data-title="{{stock.name}}">
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
-                {% elif c.selected_account %}
-                    <div class="container">
-                        {{ c.selected_account.code }}
-                    </div>
-                {% else %}
-                    <div>
-                        {% for stock in c.all_stocks %}
-                            <div class="stock-chart"
-                                 data-stock_id="{{stock.id}}"
-                                 data-title="{{stock.name}}">
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-        </main>
+            </main>
+        {% endblock %}
     </div>
 </div>
 {% endblock %}

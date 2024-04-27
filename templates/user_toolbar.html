@@ -5,14 +5,14 @@
 
 
     <div class="main-nav-end">
-      {% if not c.selected_account %}
+      {% if not selected_account %}
       <div>
-        <a class="btn btn-info create-account">Создать счет</a>
+        <a class="btn btn-primary create-account">Создать счет</a>
       </div>
       {% endif %}
 
 
-      {% if c.selected_account %}
+      {% if selected_account %}
         <div class="search-wrapper">
           <i data-feather="search" aria-hidden="true"></i>
           <input type="text" placeholder="Поиск инструментов" required>

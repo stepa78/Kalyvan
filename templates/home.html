@@ -1,16 +1,15 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class="d-flex
-         align-items-center
-         justify-content-center
-         min-vh-100">
-        <div>
-            <h1>iБогатый 78000</h1>
-            <ul style="list-style-type:none;">
-                <li><a href="{{url_for('login')}}">Войти</a></li>
-                <li><a href="{{url_for('register')}}">Зарегистрироваться</a></li>
-            </ul>
-        </div>
-    </div>
+<main class="page-center">
+    <article class="sign-up">
+        <form id="register-form" class="sign-up-form form">
+            <h1 id="text"> iБогатый 78000</h1>
+            <div>
+                <a class="btn btn-primary" href="{{url_for('register')}}">Зарегистрироваться</a>
+                <a class="btn btn-secondary" href="{{url_for('login')}}">Войти</a>
+            </div>
+        </form>
+    </article>
+</main>
 {% endblock %}
