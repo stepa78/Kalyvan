@@ -10,7 +10,9 @@ from flask_bcrypt import Bcrypt
 
 from forms import LoginForm, RegisterForm
 from models import db, User, Account, AccountStock, Stock, Tick, StockTick
-from sqlalchemy import func
+
+from sqlalchemy import func, and_
+from sqlalchemy.orm import aliased
 
 
 BURSE_START_DATE = datetime.datetime(year=2024, month=1, day=1)
@@ -124,6 +126,58 @@ def register():
         db.session.commit()
         return redirect(url_for('login'))
     return render_template('register.html', form=form)
+
+
+@app.route('/api/prices')
+def stock_prices():
+    stock_id = request.args.get('stock_id')
+    tick = request.args.get('timestamp')
+    if not tick:
+        tick = 0
+
+    if stock_id:
+        #pricesOpen = StockTick.query.filter(StockTick.stock_id == stock_id).subquery()
+        #pricesClose = StockTick.query.filter(StockTick.stock_id == stock_id).subquery()
+
+        pricesOpen = aliased(StockTick)
+        pricesClose = aliased(StockTick)
+
+        time_frame = 300
+        group_by_time_frame = time_frame * func.floor(StockTick.tick / time_frame)
+
+        agg_prices = db.session.query(
+            group_by_time_frame,
+            StockTick.stock_id,
+            func.max(StockTick.tick).label("open_tick"),
+            func.min(StockTick.tick).label("close_tick"),
+            func.max(StockTick.price).label("hi"),
+            func.min(StockTick.price).label("lo"),
+        ).filter(
+            StockTick.tick > tick, StockTick.stock_id == stock_id
+        ).group_by(
+            StockTick.stock_id,
+            group_by_time_frame
+        ).order_by(group_by_time_frame).subquery()
+
+        a = agg_prices.join(
+            pricesOpen,
+            and_(
+                pricesOpen.stock_id == agg_prices.c.stock_id,
+                pricesOpen.tick == agg_prices.c.open_tick
+            )
+        ).join(
+            pricesClose,
+            and_(
+                pricesClose.stock_id == agg_prices.c.stock_id,
+                pricesClose.tick == agg_prices.c.close_tick
+            )
+        )
+        print(a)
+
+        res = db.session.query(a).all()
+
+
+    return
 
 
 def create_stock():

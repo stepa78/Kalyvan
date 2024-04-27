@@ -6,10 +6,10 @@ $(document).ready(()=>{
 
 
     $(".stock-chart").each((i, el)=>{
-        const title = $el.data('title')
-        const stockId = $el.data('stockId')
-
         const $el = $(el);
+
+        const title = $el.data('title')
+        const stock_id = $el.data('stock_id')
 
         const options = {
             'title': {
@@ -23,25 +23,23 @@ $(document).ready(()=>{
 
         const $chart = $el.CanvasJSChart(options);
 
-        setTimeout(()=>{
-            const dp = options.data[0].datapoints;
+        if (stock_id == 1)
+        {
+
+//        setInterval(()=>{
+            const dp = options.data[0].dataPoints;
 
             let timestamp = '';
             if (dp.length)
                  timestamp = dp[dp.length-1]
+
             $.get(
-                `/api/prices?stock_id=${stockId}&timestamp=${timestamp}`,
+                `/api/prices?stock_id=${stock_id}&timestamp=${timestamp}`,
                 (response)=>{
                     console.log(response);
                 }
             );
-        }, 10000)
-
-        console.log($el);
-
-
-
+//        }, 10000)
+        }
     })
-
-
 });
