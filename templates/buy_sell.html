@@ -6,23 +6,26 @@
              data-title="{{stock.name}}">
         </div>
     </div>
-    <div class="col-8">
-        <div class="row">
-            <form class="row g-3 buy_sell">
-                <input type="number" hidden name="stock_id" value="{{stock.id}}">
-                <input type="number" hidden name="account_id" value="{{selected_account.id}}">
-                <div class="col-auto">
-                    <input type="number" class="form-control" name="size" value="1">
-                </div>
-                <div class="col-auto">
-                    <button type="button" class="buy_sell btn btn-success mb-3" data-action="buy">Купить</button>
-                </div>
-                <div class="col-auto">
-                    <button type="button" class="buy_sell btn btn-danger mb-3" data-action="sell">Продать</button>
-                </div>
-            </form>
-        </div>
-        <div class="row errors"></div>
+    <div class="col-2">
+        {% with account_size=stock.get_count(selected_account.id).size %}
+            <span>У вас есть <span class="stock-size-{{stock.id}}">{% if account_size %}{{account_size}}{% else %}0{% endif %}</span> шт.</span>
+        {% endwith %}
+    </div>
+    <div class="col-6">
+        <form class="row g-3 buy_sell">
+            <input type="number" hidden name="stock_id" value="{{stock.id}}">
+            <input type="number" hidden name="account_id" value="{{selected_account.id}}">
+            <div class="col-3">
+                <input type="number" class="form-control" name="size" value="1">
+            </div>
+            <div class="col-auto">
+                <button type="button" class="buy_sell btn btn-success mb-3" data-action="buy">Купить</button>
+            </div>
+            <div class="col-auto">
+                <button type="button" class="buy_sell btn btn-danger mb-3" data-action="sell">Продать</button>
+            </div>
+        </form>
+        <div class="w-auto"></div>
     </div>
 </div>
 {% endfor %}

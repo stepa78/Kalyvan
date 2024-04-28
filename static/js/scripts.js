@@ -85,7 +85,13 @@ $(document).ready(()=>{
         $.ajax({
             url: `/api/${action}/${account_id}/${stock_id}?size=${size}`,
             success: function(result){
-                console.log(result);
+                if ('balance' in result){
+                    $('.user-balance').text(result['balance']);
+                }
+                if ('size' in result){
+                    $(`.stock-size-${stock_id}`).text(result['size']);
+                }
+                $form.next().text(result['message'] || '')
             }
         });
     })

@@ -61,6 +61,12 @@ class Stock(db.Model):
     start_price: Mapped[decimal.Decimal] = mapped_column(STOCK_PRICE())
     lot_size: Mapped[int] = mapped_column(Integer, default=1)
 
+    def get_count(self, account_id):
+        return AccountStock.query.filter(
+            AccountStock.account_id == account_id,
+            AccountStock.stock_id == self.id
+        ).first()
+
 
 class AccountStock(db.Model):
     __tablename__ = 'account_stock'

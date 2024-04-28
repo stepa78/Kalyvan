@@ -14,9 +14,8 @@
 
       {% if selected_account %}
         <div>
-          <span>Ваш баланс: {{selected_account.balance}}</span>
+          <span>Ваш баланс: <span class="user-balance">{{selected_account.balance}}</span> ₽</span>
         </div>
-
         <div>
           <a class="btn btn-danger delete-account" data-account_id="{{selected_account.id}}">Закрыть счет</a>
         </div>

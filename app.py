@@ -190,19 +190,19 @@ def buy_sell(action=None, account_id=None, stock_id=None):
     if action == 'sell':
         account_stock = user_account.get_account_stock(stock_id)
         if not account_stock:
-            abort(404)
+            return jsonify(ok=False, message='В вашем портфеле нет этих акций')
 
         if account_stock.size < size:
-            abort(404)
+            return jsonify(ok=False, message='Недостаточно акций для продажи')
 
         user_account.balance += stock_tick.price * account_stock.size
         account_stock.size -= size
         db.session.commit()
-        return jsonify(ok=True)
+        return jsonify(ok=True, size=account_stock.size, balance=user_account.balance)
 
     if action == 'buy':
         if stock_tick.price * size > user_account.balance:
-            abort(404)
+            return jsonify(ok=False, message='Недостаточно средств для покупки')
 
         account_stock = user_account.get_account_stock(stock_id)
         if not account_stock:
@@ -215,7 +215,7 @@ def buy_sell(action=None, account_id=None, stock_id=None):
 
         user_account.balance -= stock_tick.price * size
         db.session.commit()
-        return jsonify(ok=True)
+        return jsonify(ok=True, size=account_stock.size, balance=user_account.balance)
 
 
 @app.route('/api/prices')
