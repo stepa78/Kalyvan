@@ -116,7 +116,7 @@ def account(account_id=0):
             # возвращаем account с id == account_id
             user_account = current_user.get_account(account_id)
             if user_account:
-                user_account.delete()
+                db.session.delete(user_account)
                 db.session.commit()
                 return jsonify(ok=True)
             else:
