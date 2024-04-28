@@ -13,11 +13,10 @@
 
 
       {% if selected_account %}
-        <div class="search-wrapper">
-          <i data-feather="search" aria-hidden="true"></i>
-          <input type="text" placeholder="Поиск инструментов" required>
-          <a class="btn btn-success">Поиск</a>
+        <div>
+          <span>Ваш баланс: {{selected_account.balance}}</span>
         </div>
+
         <div>
           <a class="btn btn-danger delete-account" data-account_id="{{selected_account.id}}">Закрыть счет</a>
         </div>

@@ -71,8 +71,22 @@ $(document).ready(()=>{
                     }
                 );
             }
-            //window.UPD = update;
             setInterval(update, 5000);
         //}
+    })
+
+    $('button.buy_sell').click((e)=>{
+        const $button = $(e.target);
+        const $form = $button.closest('form.buy_sell');
+        const action = $button.data('action');
+        const size = $form.find('input[name="size"]').val();
+        const stock_id = $form.find('input[name="stock_id"]').val();
+        const account_id = $form.find('input[name="account_id"]').val();
+        $.ajax({
+            url: `/api/${action}/${account_id}/${stock_id}?size=${size}`,
+            success: function(result){
+                console.log(result);
+            }
+        });
     })
 });

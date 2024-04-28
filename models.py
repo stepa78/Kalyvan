@@ -27,6 +27,9 @@ class User(UserMixin, db.Model):
     password: Mapped[str] = mapped_column(String(80))
     avatar: Mapped[str] = mapped_column(String(1000), nullable=True)
 
+    def get_account(self, account_id):
+        return Account.query.filter(Account.user_id == self.id, Account.id == account_id).first()
+
     def get_accounts(self):
         return [a for a in Account.query.filter(Account.user_id == self.id)]
 
@@ -36,6 +39,7 @@ class Account(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     user_id : Mapped[int] = mapped_column(Integer, ForeignKey('user.id'), nullable=False)
     code: Mapped[str] = mapped_column(String(20), unique=True, nullable=False)
+    balance: Mapped[decimal.Decimal] = mapped_column(STOCK_PRICE(), default=100000)
 
     def as_dict(self):
         return {
@@ -43,6 +47,9 @@ class Account(db.Model):
             'user_id': self.user_id,
             'code': self.code
         }
+
+    def get_account_stock(self, stock_id):
+        return AccountStock.query.filter(AccountStock.account_id == self.id, AccountStock.stock_id == stock_id).first()
 
 
 class Stock(db.Model):

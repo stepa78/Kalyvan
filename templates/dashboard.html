@@ -20,7 +20,7 @@
                     </div>
                     {% elif selected_account %}
                         <div class="container">
-                            {{ selected_account.code }}
+                            {% include 'buy_sell.html' %}
                         </div>
                     {% else %}
                         <div style="display:grid;grid-template-columns: 30% 30% 30%;grid-gap: 20px;">

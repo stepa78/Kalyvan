@@ -101,7 +101,7 @@ def account(account_id=0):
     elif request.method == 'GET':
         if account_id > 0:
             # возвращаем account с id == account_id
-            user_account = Account.query.filter(Account.user_id==current_user.id, Account.id==account_id).first()
+            user_account = current_user.get_account(account_id)
             if user_account is None:
                 abort(404)
             return jsonify(user_account.as_dict())
@@ -114,11 +114,13 @@ def account(account_id=0):
         #удаляем account с id == account_id
         if account_id > 0:
             # возвращаем account с id == account_id
-            Account.query.filter(Account.user_id==current_user.id, Account.id==account_id).delete()
-            db.session.commit()
-            return jsonify(ok=True)
-        else:
-            return jsonify(ok=False)
+            user_account = current_user.get_account(account_id)
+            if user_account:
+                user_account.delete()
+                db.session.commit()
+                return jsonify(ok=True)
+            else:
+                return jsonify(ok=False)
 
 
 @app.route('/logout', methods=['GET', 'POST'])
@@ -160,6 +162,60 @@ def settings():
     return render_template('user_settings.html',
                            user=current_user,
                            accounts=current_user.get_accounts())
+
+
+@login_required
+@app.route('/api/<action>/<account_id>/<stock_id>', methods=['GET'])
+def buy_sell(action=None, account_id=None, stock_id=None):
+    if action not in ['buy', 'sell'] or account_id is None or stock_id is None:
+        abort(404)
+
+    try:
+        size = int(request.args.get('size'))
+    except ValueError:
+        size = 0
+
+    if size == 0:
+        abort(404)
+
+    user_account = current_user.get_account(account_id)
+    if not user_account:
+        abort(404)
+
+    now_tick = int(datetime.datetime.now().timestamp()) - 30
+    stock_tick = StockTick.query.filter(StockTick.tick > now_tick, StockTick.stock_id == stock_id).first()
+    if not stock_tick:
+        abort(404)
+
+    if action == 'sell':
+        account_stock = user_account.get_account_stock(stock_id)
+        if not account_stock:
+            abort(404)
+
+        if account_stock.size < size:
+            abort(404)
+
+        user_account.balance += stock_tick.price * account_stock.size
+        account_stock.size -= size
+        db.session.commit()
+        return jsonify(ok=True)
+
+    if action == 'buy':
+        if stock_tick.price * size > user_account.balance:
+            abort(404)
+
+        account_stock = user_account.get_account_stock(stock_id)
+        if not account_stock:
+            account_stock = AccountStock(account_id=account_id, stock_id=stock_id, size=0)
+            db.session.add(account_stock)
+
+        account_stock.size += size
+        account_stock.price = stock_tick.price
+        account_stock.buy_date = datetime.datetime.now()
+
+        user_account.balance -= stock_tick.price * size
+        db.session.commit()
+        return jsonify(ok=True)
 
 
 @app.route('/api/prices')
@@ -267,7 +323,7 @@ if __name__ == '__main__':
         db.create_all()
         create_stock()
 
-    #start_ticker()
+    start_ticker()
 
     #run_ticker(app)
     app.run()
